@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
@@ -100,6 +101,9 @@ tickSpan :: IntMap SrcSpan -> IntMap SrcSpan -> Tickish Var -> SrcSpan
 tickSpan _   _  (ProfNote cc _ _) = cc_loc cc
 tickSpan hpc _  (HpcTick _ i)     = IntMap.findWithDefault noSrcSpan i hpc
 tickSpan _   bk (Breakpoint i _)  = IntMap.findWithDefault noSrcSpan i bk
+#if __GLASGOW_HASKELL__ >= 710
+tickSpan _   _  (SourceNote s _)  = RealSrcSpan s
+#endif
 
 
 addLocationsBind :: (Tickish Var -> SrcSpan)
