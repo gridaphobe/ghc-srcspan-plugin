@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 module GHC.Plugins.ErrorLoc
   (plugin, errorAt, undefinedAt, fromJustAt)
   where
@@ -23,9 +24,16 @@ install opts todos = do
   maybeM   <- lookupModule (mkModuleName "Data.Maybe") Nothing
   fmjstVar <- lookupId =<< lookupName maybeM (mkVarOcc "fromJust")
 
+#if __GLASGOW_HASKELL__ < 800
   let subst = [ (eRROR_ID, errorAtVar), (uNDEFINED_ID, undefAtVar)
               , (fmjstVar, fmjstAtVar)
               ]
+#else
+  -- GHC 8 uses HasCallStack to provide source locations for
+  -- error and undefined, so rewriting them is pointless
+  let subst = [ (fmjstVar, fmjstAtVar) ]
+#endif
+
 
   let annotate = mkErrorAt subst
 

@@ -84,7 +84,11 @@ getSpans df ModGuts {..} = do
   mixEntries <- getMixEntries modName (hpcDir df) 
                   `catch` \(_ :: SomeException) -> return []
   let hpc = IntMap.fromList $ zip [0..] mixEntries
+#if __GLASGOW_HASKELL__ < 800
   let bk  = IntMap.fromList $ Array.assocs $ modBreaks_locs mg_modBreaks
+#else
+  let bk  = maybe IntMap.empty (IntMap.fromList . Array.assocs . modBreaks_locs) mg_modBreaks
+#endif
   return (tickSpan hpc bk)
 
 
