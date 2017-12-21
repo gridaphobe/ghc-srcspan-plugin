@@ -12,7 +12,9 @@ plugin = defaultPlugin { installCoreToDos = install }
 
 install :: [CommandLineOption] -> [CoreToDo] -> CoreM [CoreToDo]
 install opts todos = do
+#if __GLASGOW_HASKELL__ < 802
   reinitializeGlobals
+#endif
 
   hsc_env <- getHscEnv
   errLocM <- lookupModule (mkModuleName "GHC.Plugins.ErrorLoc") Nothing
